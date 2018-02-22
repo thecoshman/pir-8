@@ -5,8 +5,7 @@ So, a jump instruction followed by a two byte address would have the following s
 
 ## Special Purpose Registers
 
-There are some special purpose registers that you cannot directly read/write from, these are used by the CPU for it's internal state. 
-There are three 16 bit registers for holding significant memory addresses and a single 8 bit register.
+There are some special purpose registers that you cannot directly read/write from, these are used by the CPU for it's internal state. There are three 16 bit registers for holding significant memory addresses and a single 8 bit register.
 
 Name            | Short | Bits | Description
 ----------------|-------|------|------------
@@ -17,10 +16,7 @@ Instruction     | INS   |   8  | Instruction currently being executed
 
 ## General Purpose Registers
 
-There are 8 General Purpose registers.
-Each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses.
-The first four registers have some special functionality as described;
-the second four have no special functionality, but can be used with the stack.
+There are 8 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses. The first four registers have some special functionality as described, the second four have no special functionality but can be used with the stack.
 
 Address | Letter | Description
 --------|--------|------------
@@ -35,10 +31,7 @@ Address | Letter | Description
 
 ## Flag register
 
-The flag register can be be read and wrote to as a general purpose register, though note what instructions can overwrite those flags.
-ALU and Compare instructions can effect the value of the flags.
-Below is a description of what each bit in the flag register denote.
-Not all of the bits have a specified role (yet), though the CLRF operation will still clear them.
+The flag register can be be read and wrote to as a general purpose register, though keep in mind that ALU and Compare instructions can effect the value of the flags. Not all of the bits have a specified role (yet), though the CLRF operation will still clear them. A value of `1` denotes the flag as 'set', whilst a value of `0` denotes  the flag is 'unset'. Below is a description of what each bit in the flag register denotes.
 
 Bit | Letter | Description
 ----|--------|------------
@@ -46,15 +39,14 @@ Bit | Letter | Description
 1   | C      | Carry flag
 2   | P      | Parity (even number of high bits)
 3   | E      | Equals flag
-4   | G      | Greater than (X greater than Y, treating both as unsigned values)
+4   | G      | Greater than
 5   |        | 
 6   |        | 
 7   |        | 
 
 # Instructions
 
-All instructions will increase the program counter (PC) by one, unless otherwise stated.
-The PC is incremented as the instruction is loaded from RAM.
+Most instructions will increase the PC by one, unless otherwise stated. The PC is incremented as the instruction is loaded from RAM. An instruction will be a single byte, and can include some following imediate values purely for data.
 
 The 'Bit Mask' shows a mask which denotes an instruction or group of instructions.
 The 'name' is for either a group or single instruction, assembly should favour these names.
@@ -80,61 +72,43 @@ Bit Mask  | Name | Count | Description
 
 ## COMP - Compare
 
-The compare instruction will compare the S register with a selected register.
-It will set the Zero and Parity flag based on the value of the S register;
-Zero flag if all the bits are zero, Parity if the number of one bits is even.
-Will set the Equal flag if the two registers have the same bit pattern;
-Note that the equality check does not have signed/unsigned handling.
+The compare instruction will compare the S register with a selected register. It will set the Zero and Parity flag based on the value of the S register; the Zero flag if all the bits are zero, Parity if the number of one bits is even. Compare will set the Equal flag if the two registers have the same bit pattern. The Greater than flag is set if S is greater than the second register. Note that when when doing a compare signed/unsigned is not taken into account, the two registers are treated as if they contain two unsigned values.
 
 NB: This might change to instead compare just the X and Y register.
 
 ## ALU Instructions
 
-Any CPU instruction of the pattern `0011 BFFF` will invoke some function of the ALU.
-The `B` bit indicates if we are doing arithmetic operations (B is 0) or bitwise operations (B is 1).
-The final three bits `FFF` are the actual operation being performed. 
-The registers X and Y are used as inputs to the ALU (only X for unary operations), and the S register is used stores the result.
+Any CPU instruction of the pattern `0011 FFFF` will invoke some function of the ALU. The foure bits `FFFF` are the actual operation being performed by the ALU. The registers X and Y are used as inputs to the ALU (only X for unary operations), and the S register is used stores the result.
 
-### Flags
+Some operations will also update the F register as noted. All will set the ZERO flag if the output (register S) is `0000 0000`. All will set the Parity flag if the number of high bits are even.
 
-Some operations will also update the F register as noted.
-All will set the ZERO flag if the output (register S) is `0000 0000`.
-All will set the Parity flag if the number of high bits are even.
+FFFF | Name | Count | Description
+-----|------|-------|------------
+0000 | ADD  |   1   | Addition of register X and register Y
+0001 | SUB  |   1   | Subtraction of register Y from register X (X-Y)
+0010 | NOT  |   1   | Bitwise NOT
+0011 |      |   1   | Reserved
+0100 |  OR  |   1   | Bitwise OR
+0101 | XOR  |   1   | Bitwise XOR
+0110 | AND  |   1   | Bitwise AND
+0111 |      |   1   | Reserved
+1DTT |      |   8   | Shift, see section below
 
-### Arithmetic Operations
+### Shift
 
-NB: Currently thinking I might re-order these into "unary" and "binary" operations. The 'shift' functionality might also be expanded to provide more ways of shifting and rotating
+All shifts can be performed left or right, as designated by the D bit of the instruction. If D is a `1`, the shift is to the left, all bits will move to a higher value, if D is `0`, it's a right shift, moving bits to lower values. There are then four types of shift that can be performed designated by the final two bits of the ALU instruction. The name should be appended with an L or R for the direction of the shift, left or right respectively.
 
-These are all of pattern `0011 0FFF`.
-
-FFF | Name | Count | Description
-----|------|-------|------------
-0XX |      |   4   | Reserved
-100 | ADD  |   1   | Addition of register X and register Y
-101 | SUB  |   1   | Subtraction of register Y from register X (X-Y)
-11X |      |   2   | Reserved
-
-### Bitwise Operations
-
-These are all of pattern `0011 1FFF`.
-The NOT and 'shift' operations are unary operations, taking the input from just register X; OR, XOR and AND use both X and Y registers as input
-
-FFF | Name | Count | Description
-----|------|-------|------------
-000 | NOT  |   1   | Bitwise NOT
-001 | OR   |   1   | Bitwise OR
-010 | XOR  |   1   | Bitwise XOR
-011 | AND  |   1   | Bitwise AND
-10A | SHFL |   2   | Shift left (to higher bits) of register X, inserting 'A' into the LSB (ie 1101 1101 -> 1011 101A), the bit shifted out is stored into the carry bit of the F register
-11A | SHFR |   2   | Shift right (to lower bits) of register X, inserting 'A' into the MSB (ie 1101 1101 -> A110 1110), the bit shifted out is stored into the carry bit of the F register
+TT | Name | Description
+---|------|------------
+00 | LSF  | Logical shift - a zero value is inserted, the bit shifted out is set into the Carry flag
+01 | ASF  | Arithmetic shift - a zero is inserted, the bit shifted out is set into the Carry flag
+10 | RTC  | Rotate with carry - the Carry flag is inserted, the bit shifted out is set into the Carry flag
+11 | RTW  | Rotate without carry - the bit shifted out is is inserted and also set into the Carry flag
 
 ## Stack Manipulation
 
-When dealing with the stack, a pair of registers will be moved either to or from 'the stack' and the SP updated to reflect the changed address.
-The registers A and B are paired, as are the registers C and D.
-Effectively, the stack works on 16 bit values, but due to the 8 bit data bus it requires two transfers, though this is handled via the hardware/microcode.
-Although still two distinct bytes, the A and C registers should be considered the more significant byte whilst B and D registers the lesser; 
-the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
+When dealing with the stack, a pair of registers will be moved either to or from 'the stack' and the SP updated to reflect the changed address. The registers A and B are paired, as are the registers C and D. Effectively, the stack works on 16 bit values, but due to the 8 bit data bus it requires two transfers, though this is handled via the hardware/microcode.
+Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser; the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
 
 The Stack manipulation operations are of pattern `1111 10DR`.
 The D bit indicates the direction; 0 for PUSH and 1 for POP.
@@ -145,21 +119,23 @@ After PUSHing, the SP will have been decremented by two.
 
 When POPing, the same respective pairs of memory locations will be read from the same pair of registers, and the SP increased by two.
 
+NB: Thinking I might update this to allow pushing/poping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
+
 ## Jump
 
-The Instruction takes a three bit operand indicating under what condition the jump should be performed.
-If condition is met, the next two bytes after this Jump instruction are loaded into the PC.
-If the condition is not met, the PC is incremented by two.
+This Instruction takes a three bit operand indicating under what condition the jump should be performed. If the condition is met, the next two bytes after this Jump instruction are loaded into the PC. If the condition is not met, the PC is incremented by two, skipping over the two bytes of the target address.
 
 This table shows what combination of bits to the JUMP instruction check what flags and in what combination
 
-FFF | Description
-----|------------
-000 | Zero flag
-001 | Parity flag
-010 | Greater than flag
-011 | Carry flag
-100 | Zero OR Greater than flags
-101 | Zero OR NOT Greater than flag
-110 | Unconditional Jump PUSH return address (always jumps, will use the S & F registers to hold the target address - this will need be clear manually)
-111 | Unconditional Jump (always jumps)
+FFF | Name | Description
+----|------|-------------
+000 | JMPZ | Zero flag
+001 | JMPP | Parity flag
+010 | JMPG | Greater than flag
+011 | JMPC | Carry flag
+100 | JMZG | Zero OR Greater than flags
+101 | JMZL | Zero OR NOT Greater than flag
+110 |      | Unconditional Jump PUSH return address (always jumps, will use the S & F registers to hold the target address - this will need be clear manually)
+111 | JUMP | Unconditional Jump (always jumps)
+
+NB: tempted to remove option 110, or maybe make it 'JMPL - NOT Zero AND NOT Greater'
