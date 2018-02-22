@@ -43,10 +43,10 @@ Not all of the bits have a specified role (yet), though the CLRF operation will 
 Bit | Letter | Description
 ----|--------|------------
 0   | Z      | Zero flag
-1   | C      | Carry Flag
-2   | P      | Parity (Even high bits)
-3   |        | 
-4   | G      | Greater than (A greater than B, treating both as unsigned values)
+1   | C      | Carry flag
+2   | P      | Parity (even number of high bits)
+3   | E      | Equals flag
+4   | G      | Greater than (X greater than Y, treating both as unsigned values)
 5   |        | 
 6   |        | 
 7   |        | 
