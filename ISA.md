@@ -132,9 +132,9 @@ FFF | Name | Count | Description
 
 When dealing with the stack, a pair of registers will be moved either to or from 'the stack' and the SP updated to reflect the changed address.
 The registers A and B are paired, as are the registers C and D.
-Effectively, the stack works on 16 bit values, but due to the 8 bit data bus it requires to transfers, though this is handled via the hardware.
-Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser; 
-the more significant byte will be stored at the higher address in the stack.
+Effectively, the stack works on 16 bit values, but due to the 8 bit data bus it requires two transfers, though this is handled via the hardware/microcode.
+Although still two distinct bytes, the A and C registers should be considered the more significant byte whilst B and D registers the lesser; 
+the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
 
 The Stack manipulation operations are of pattern `1111 10DR`.
 The D bit indicates the direction; 0 for PUSH and 1 for POP.
