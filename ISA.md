@@ -5,7 +5,7 @@ So, a jump instruction followed by a two byte address would have the following s
 
 ## Special Purpose Registers
 
-There are some special purpose registers that you cannot directly read/write from, these are used by the CPU for it's internal state. There are three 16 bit registers for holding significant memory addresses and a single 8 bit register.
+There are some special purpose registers that you cannot directly read/write from, these are used by the CPU for its internal state. There are three 16 bit registers for holding significant memory addresses and a single 8 bit register.
 
 Name            | Short | Bits | Description
 ----------------|-------|------|------------
