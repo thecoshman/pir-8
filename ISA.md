@@ -92,18 +92,18 @@ FFFF | Name | Count | Description
 0101 | XOR  |   1   | Bitwise XOR
 0110 | AND  |   1   | Bitwise AND
 0111 |      |   1   | Reserved
-1DTT |      |   8   | Shift, see section below
+1DTT |      |   8   | Shift or Rotate, see section below
 
-### Shift
+### Shift and Rotate
 
-All shifts can be performed left or right, as designated by the D bit of the instruction. If D is a `1`, the shift is to the left, all bits will move to a higher value, if D is `0`, it's a right shift, moving bits to lower values. There are then four types of shift that can be performed designated by the final two bits of the ALU instruction. The name should be appended with an L or R for the direction of the shift, left or right respectively.
+All shifts can be performed left or right, as designated by the D bit of the instruction. If D is a `1`, the shift is to the left, all bits will move to a higher value, if D is `0`, it's a right shift, moving bits to lower values. There are then four types of shift that can be performed designated by the final two bits of the ALU instruction. The name should be appended with an L or R for the direction of the shift, left or right respectively. For all shift operations the bit shifted out is set into the Carry flag.
 
 TT | Name | Description
 ---|------|------------
-00 | LSF  | Logical shift - a zero value is inserted, the bit shifted out is set into the Carry flag
-01 | ASF  | Arithmetic shift - a zero is inserted, the bit shifted out is set into the Carry flag
-10 | RTC  | Rotate with carry - the Carry flag is inserted, the bit shifted out is set into the Carry flag
-11 | RTW  | Rotate without carry - the bit shifted out is is inserted and also set into the Carry flag
+00 | LSF  | Logical shift - a zero is inserted 
+01 | ASF  | Arithmetic shift - a zero is inserted for left shift, bit-8 is inserted for right shift
+10 | RTC  | Rotate with carry - the Carry flag is inserted (Carry flag value before it is updated is used)
+11 | RTW  | Rotate without carry - the bit shifted out is is inserted
 
 ## Stack Manipulation
 
