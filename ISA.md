@@ -1,5 +1,4 @@
-Unless stated otherwise, bits are always represented from MSB to LSB (reading left to right) and multi-bytes sequences are big-endian.
-So, a jump instruction followed by a two byte address would have the following sequence of bytes "jump", "high address byte", "low address byte".
+Unless stated otherwise, bits are always represented from MSB to LSB (reading left to right) and multi-bytes sequences are big-endian. So, a jump instruction followed by a two byte address would have the following sequence of bytes "jump", "high address byte", "low address byte".
 
 # Registers
 
@@ -16,7 +15,7 @@ Instruction     | INS   |   8  | Instruction currently being executed
 
 ## General Purpose Registers
 
-There are 8 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses. The first four registers have some special functionality as described, the second four have no special functionality but can be used with the stack.
+There are eight 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses. The first four registers have some special functionality, as described, the second four have no special functionality but can be used with the stack.
 
 Address | Letter | Description
 --------|--------|------------
@@ -46,11 +45,11 @@ Bit | Letter | Description
 
 # Instructions
 
-Most instructions will increase the PC by one, unless otherwise stated. The PC is incremented as the instruction is loaded from RAM. An instruction will be a single byte, and can include some following imediate values purely for data.
+Instructions will increase the PC by one, unless otherwise stated. The PC is incremented as the instruction is loaded from RAM. An instruction is a single byte, and can include some following imediate values purely for data.
 
-The 'Bit Mask' shows a mask which denotes an instruction or group of instructions.
-The 'name' is for either a group or single instruction, assembly should favour these names.
-'Count' is how many of the 256 possible instructions are used by that bit pattern; HALT for example is exactly one instruction, whilst MOVE is effectively 64 possible combinations.
+The 'Bit Mask' shows a pattern which denotes an instruction or group of instructions, the letters donoting where any value can be used and still be consdiered part of the same instruction.
+The 'name' is for either a group or single instruction.
+'Count' is how many of the 256 possible instructions are used by that bit pattern; HALT for example is exactly one instruction, whilst MOVE is effectively 64 possible combinations [this was added to help me keep track of how many operations I've defined, it should add up to 256].
 
 Bit Mask  | Name | Count | Description
 ----------|------|-------|------------
@@ -78,9 +77,9 @@ NB: This might change to instead compare just the X and Y register.
 
 ## ALU Instructions
 
-Any CPU instruction of the pattern `0011 FFFF` will invoke some function of the ALU. The foure bits `FFFF` are the actual operation being performed by the ALU. The registers X and Y are used as inputs to the ALU (only X for unary operations), and the S register is used stores the result.
+Any CPU instruction of the pattern `0011 FFFF` will invoke some function of the ALU. The four bits `FFFF` are the actual operation being performed by the ALU. The registers X and Y are used as inputs to the ALU (only X for unary operations), and the S register is used to store the result.
 
-Some operations will also update the F register as noted. All will set the ZERO flag if the output (register S) is `0000 0000`. All will set the Parity flag if the number of high bits are even.
+ALU operations will also update the F register as noted. All will set the ZERO flag if the output (register S) is `0000 0000`. All will set the Parity flag if the number of high bits are even.
 
 FFFF | Name | Count | Description
 -----|------|-------|------------
@@ -96,7 +95,7 @@ FFFF | Name | Count | Description
 
 ### Shift and Rotate
 
-All shifts can be performed left or right, as designated by the D bit of the instruction. If D is a `1`, the shift is to the left, all bits will move to a higher value, if D is `0`, it's a right shift, moving bits to lower values. There are then four types of shift that can be performed designated by the final two bits of the ALU instruction. The name should be appended with an L or R for the direction of the shift, left or right respectively. For all shift operations the bit shifted out is set into the Carry flag.
+All shifts can be performed left or right, as designated by the D bit of the instruction. If D is a `1`, the shift is to the left, all bits will move to a higher value, if D is `0`, it's a right shift, moving bits to lower values. There are then four types of shift that can be performed designated by the final two bits of the ALU instruction. The name should be appended with an L or R for the direction of the shift, left or right respectively. For all shift operations, the bit shifted out is set into the Carry flag.
 
 TT | Name | Description
 ---|------|------------
@@ -105,10 +104,11 @@ TT | Name | Description
 10 | RTC  | Rotate with carry - the Carry flag is inserted (Carry flag value before it is updated is used)
 11 | RTW  | Rotate without carry - the bit shifted out is is inserted
 
+**NB:** An 'Arithmetic shift left' is the same as performing a 'Logcal shift left', they _can_ be used interchagably, but 'Arithmtic shift left' should be avoided.
+
 ## Stack Manipulation
 
-When dealing with the stack, a pair of registers will be moved either to or from 'the stack' and the SP updated to reflect the changed address. The registers A and B are paired, as are the registers C and D. Effectively, the stack works on 16 bit values, but due to the 8 bit data bus it requires two transfers, though this is handled via the hardware/microcode.
-Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser; the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
+When dealing with the stack, a pair of registers will be moved to or from 'the stack' and the SP updated to reflect the changed address. The registers A and B are paired, as are the registers C and D. Effectively, the stack works on 16 bit values, but due to the 8 bit data bus it requires two transfers, though this is handled via the hardware/microcode. Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser; the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
 
 The Stack manipulation operations are of pattern `1111 10DR`.
 The D bit indicates the direction; 0 for PUSH and 1 for POP.
@@ -119,7 +119,7 @@ After PUSHing, the SP will have been decremented by two.
 
 When POPing, the same respective pairs of memory locations will be read from the same pair of registers, and the SP increased by two.
 
-NB: Thinking I might update this to allow pushing/poping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
+**NB:** I Think I might update this to allow pushing/poping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
 
 ## Jump
 
@@ -138,4 +138,4 @@ FFF | Name | Description
 110 |      | Unconditional Jump PUSH return address (always jumps, will use the S & F registers to hold the target address - this will need be clear manually)
 111 | JUMP | Unconditional Jump (always jumps)
 
-NB: tempted to remove option 110, or maybe make it 'JMPL - NOT Zero AND NOT Greater'
+**NB:** I'm tempted to remove option 110, or maybe make it 'JMPL - NOT Zero AND NOT Greater'
