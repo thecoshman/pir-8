@@ -30,13 +30,13 @@ Address | Letter | Description
 
 ## Flag register
 
-The flag register can be be read and wrote to as a general purpose register, though keep in mind that ALU and Compare instructions can effect the value of the flags. Not all of the bits have a specified role (yet), though the CLRF operation will still clear them. A value of `1` denotes the flag as 'set', whilst a value of `0` denotes  the flag is 'unset'. Below is a description of what each bit in the flag register denotes.
+The flag register can be be read and written to as a general purpose register, though keep in mind that ALU and Compare instructions can effect the value of the flags. Not all of the bits have a specified role (yet), though the CLRF operation will still clear them. A value of `1` denotes the flag as 'set', whilst a value of `0` denotes  the flag is 'unset'. Below is a description of what each bit in the flag register denotes.
 
 Bit | Letter | Description
 ----|--------|------------
 0   | Z      | Zero flag
 1   | C      | Carry flag
-2   | P      | Parity (even number of high bits)
+2   | P      | Parity (even number of set bits)
 3   | E      | Equals flag
 4   | G      | Greater than
 5   |        | 
@@ -45,9 +45,9 @@ Bit | Letter | Description
 
 # Instructions
 
-Instructions will increase the PC by one, unless otherwise stated. The PC is incremented as the instruction is loaded from RAM. An instruction is a single byte, and can include some following imediate values purely for data.
+Instructions will increase the PC by one, unless otherwise stated. The PC is incremented as the instruction is loaded from RAM. An instruction is a single byte, and can include some following immediate values purely for data.
 
-The 'Bit Mask' shows a pattern which denotes an instruction or group of instructions, the letters donoting where any value can be used and still be consdiered part of the same instruction.
+The 'Bit Mask' shows a pattern which denotes an instruction or group of instructions, the letters denoting where any value can be used and still be considered part of the same instruction.
 The 'name' is for either a group or single instruction.
 'Count' is how many of the 256 possible instructions are used by that bit pattern; HALT for example is exactly one instruction, whilst MOVE is effectively 64 possible combinations [this was added to help me keep track of how many operations I've defined, it should add up to 256].
 
@@ -71,9 +71,9 @@ Bit Mask  | Name | Count | Description
 
 ## COMP - Compare
 
-The compare instruction will compare the S register with a selected register. It will set the Zero and Parity flag based on the value of the S register; the Zero flag if all the bits are zero, Parity if the number of one bits is even. Compare will set the Equal flag if the two registers have the same bit pattern. The Greater than flag is set if S is greater than the second register. Note that when when doing a compare signed/unsigned is not taken into account, the two registers are treated as if they contain two unsigned values.
+The compare instruction will compare the S register with a selected register. It will set the Zero and Parity flag based on the value of the S register; the Zero flag if all the bits are zero, Parity if the number of set bits is even. Compare will set the Equal flag if the two registers have the same bit pattern. The Greater than flag is set if S is greater than the second register. Note that when doing a compare signed/unsigned is not taken into account, the two registers are treated as if they contain two unsigned values.
 
-NB: This might change to instead compare just the X and Y register.
+**NB:** This might change to instead compare just the X and Y register.
 
 ## ALU Instructions
 
@@ -104,7 +104,7 @@ TT | Name | Description
 10 | RTC  | Rotate with carry - the Carry flag is inserted (Carry flag value before it is updated is used)
 11 | RTW  | Rotate without carry - the bit shifted out is is inserted
 
-**NB:** An 'Arithmetic shift left' is the same as performing a 'Logcal shift left', they _can_ be used interchagably, but 'Arithmtic shift left' should be avoided.
+**NB:** An 'Arithmetic shift left' is the same as performing a 'Logcal shift left', they _can_ be used interchangeably, but 'Arithmetic shift left' should be avoided.
 
 ## Stack Manipulation
 
@@ -119,7 +119,7 @@ After PUSHing, the SP will have been decremented by two.
 
 When POPing, the same respective pairs of memory locations will be read from the same pair of registers, and the SP increased by two.
 
-**NB:** I Think I might update this to allow pushing/poping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
+**NB:** I Think I might update this to allow pushing/popping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
 
 ## Jump
 
