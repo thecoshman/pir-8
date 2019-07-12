@@ -15,7 +15,7 @@ Instruction     | INS   |   8  | Instruction currently being executed
 
 ## General Purpose Registers
 
-There are eight 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses. The first four registers have some special functionality, as described, the second four have no special functionality but can be used with the stack.
+There are eight 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses. The first five registers have some special functionality, as described, the last three have no special functionality. The last four registers can also be used with the stack.
 
 Address | Letter | Description
 --------|--------|------------
@@ -23,7 +23,7 @@ Address | Letter | Description
 001     | S      | Output of the ALU - ALU operations will overwrite any value stored
 010     | X      | Input to ALU (Only input for unary operations)
 011     | Y      | Second input for ALU
-100     | A      | 
+100     | A      | Port number for PORT instruction
 101     | B      | 
 110     | C      | 
 111     | D      | 
@@ -62,12 +62,19 @@ Bit Mask  | Name | Count | Description
 01AA ABBB | MOVE |    64 | Move a value from register `AAA` to register `BBB`
 10XX XXXX |      |    64 | Reserved
 110X XXXX |      |    32 | Reserved
-1110 XXXX |      |    16 | Reserved
+1110 XXXX | PORT |    16 | Perform I/O, see section below
 1111 0AAA | COMP |     8 | Compare register S with register `AAA`, see section below
 1111 10XX | STCK |     4 | Stack manipulation, see section below
 1111 110X |      |     2 | Reserved
 1111 1110 | CLRF |     1 | Clear the 'F' register, by setting it to `0000 0000`
 1111 1111 | HALT |     1 | Stop the CPU from doing any more execution 
+
+## PORT - I/O
+
+The PORT instruction in the form 1110 DAAA will perform I/O on the port specified in register A.
+
+The `D` bit specifies the direction - `1` for reading in from the port (`PORT IN`) and `0` for writing out to the port (`PORT OUT`).
+The `AAA` bits specify the register to write to (D=1) or read from (D=0).
 
 ## COMP - Compare
 
