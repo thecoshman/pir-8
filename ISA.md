@@ -131,7 +131,7 @@ FFF | Name | Description
 ----|------|-------------
 000 | JMPZ | Zero flag
 001 | JMPP | Parity flag
-010 | JMPG | Greater than flag
+010 | JMPG | NOT Zero AND Greater than flag (i.e. greater than)
 011 | JMPC | Carry flag
 100 | JMZG | Zero OR Greater than flags
 101 | JMZL | Zero OR NOT Greater than flag
