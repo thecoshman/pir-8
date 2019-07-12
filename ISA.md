@@ -135,7 +135,5 @@ FFF | Name | Description
 011 | JMPC | Carry flag
 100 | JMZG | Zero OR Greater than flags
 101 | JMZL | Zero OR NOT Greater than flag
-110 |      | Unconditional Jump PUSH return address (always jumps, will use the S & F registers to hold the target address - this will need be clear manually)
+110 | JMPL | NOT Zero AND NOT Greater than flag (i.e. less than)
 111 | JUMP | Unconditional Jump (always jumps)
-
-**NB:** I'm tempted to remove option 110, or maybe make it 'JMPL - NOT Zero AND NOT Greater'
