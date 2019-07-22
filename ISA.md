@@ -60,6 +60,8 @@ Instructions will increase the PC by one, unless otherwise stated.
 The PC is incremented as the instruction is loaded from RAM.
 An instruction is a single byte, and can include some following immediate values purely for data.
 
+It is possible that the PC will overflow and wrap arround as you load an instruction, there is no hardware level protection or detection if this happens. An example of how this can happy is if you perform a jump to `0xFF`, as the instruction at `0xFF` is loaded, the PC will incremented to `0x00`.
+
 The 'Bit Mask' shows a pattern which denotes an instruction or group of instructions, the letters denoting where any value can be used and still be considered part of the same instruction.
 The 'name' is for either a group or single instruction.
 'Count' is how many of the 256 possible instructions are used by that bit pattern; HALT for example is exactly one instruction, whilst MOVE is effectively 64 possible combinations [this was added to help me keep track of how many operations I've defined, it should add up to 256].
@@ -155,6 +157,8 @@ When PUSHing B or D will go to the address of the SP, whilst A or C will go to a
 After PUSHing, the SP will have been decremented by two.
 
 When POPing, the same respective pairs of memory locations will be read from the same pair of registers, and the SP increased by two.
+
+Care must be taken, especially when POPing the stack, as there is no under/overflow protection or detection, just like with the PC incrememnting during instruction execution.
 
 **NB:** I Think I might update this to allow pushing/popping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
 
