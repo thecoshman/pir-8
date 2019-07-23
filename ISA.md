@@ -60,7 +60,9 @@ Instructions will increase the PC by one, unless otherwise stated.
 The PC is incremented as the instruction is loaded from RAM.
 An instruction is a single byte, and can include some following immediate values purely for data.
 
-It is possible that the PC will overflow and wrap arround as you load an instruction, there is no hardware level protection or detection if this happens. An example of how this can happy is if you perform a jump to `0xFF`, as the instruction at `0xFF` is loaded, the PC will incremented to `0x00`.
+It is possible that the PC will overflow and wrap arround as you load an instruction, there is no hardware level protection or detection if this happens.
+An example of how this can occour is if you perform a jump to `0xFFFF`;
+as the instruction at `0xFFFF` is loaded, the PC would be incremented to `0x10000`, but as it's only 16 bits wide, it becomes just `0x0000`. 
 
 The 'Bit Mask' shows a pattern which denotes an instruction or group of instructions, the letters denoting where any value can be used and still be considered part of the same instruction.
 The 'name' is for either a group or single instruction.
