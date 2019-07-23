@@ -3,6 +3,8 @@ So, a jump instruction followed by a two byte address would have the following s
 
 # Registers
 
+All the registers will start with an initial value of `0x0`.
+
 ## Special Purpose Registers
 
 There are some special purpose registers that you cannot directly read/write from, these are used by the CPU for its internal state.
@@ -155,12 +157,29 @@ The Stack manipulation operations are of pattern `1111 10DR`.
 The D bit indicates the direction; 0 for PUSH and 1 for POP.
 The R bit indicates the register pair; 0 for A & B and 1 for C & D.
 
-When PUSHing B or D will go to the address of the SP, whilst A or C will go to address one less than the SP.
-After PUSHing, the SP will have been decremented by two.
+When PUSHing B/D will go to the address one less than the current SP, whilst A/C will go to address two less than the SP.
+After PUSHing, the SP will have been decremented by two, with the SP containg the address of A/C (now in memory).
 
-When POPing, the same respective pairs of memory locations will be read from the same pair of registers, and the SP increased by two.
+When POPing, the same respective pairs of memory locations will be read to the same pair of registers, and the SP increased by two.
 
 Care must be taken, especially when POPing the stack, as there is no under/overflow protection or detection, just like with the PC incrememnting during instruction execution.
+Infact, by design, POPing the final value from the stack will result in an overflow bringing the SP back to `0x0000`.
+
+In terms of pseudocode a PUSH followed by a POP can view as the following microcode, where SP is a pointer to the memory address:
+
+```
+# PUSH 
+SP -= 1
+*SP = B
+SP -= 1
+*SP = A
+
+# POP
+A = *SP
+SP += 1
+B = *SP
+SP += 1
+```
 
 **NB:** I Think I might update this to allow pushing/popping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
 
