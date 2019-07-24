@@ -119,13 +119,13 @@ FFFF | Name | Count | Description
 -----|------|-------|------------
 0000 | ADD  |   1   | Addition of register X and register Y
 0001 | SUB  |   1   | Subtraction of register Y from register X (X-Y)
-0010 | NOT  |   1   | Bitwise NOT
+0010 | NOT  |   1   | Bitwise NOT (unary operation)
 0011 |      |   1   | Reserved
 0100 |  OR  |   1   | Bitwise OR
 0101 | XOR  |   1   | Bitwise XOR
 0110 | AND  |   1   | Bitwise AND
 0111 |      |   1   | Reserved
-1DTT |      |   8   | Shift or Rotate, see section below
+1DTT |      |   8   | Shift or Rotate, see section below (unary operation)
 
 ### Shift and Rotate
 
