@@ -18,8 +18,8 @@ Stack Pointer   | SP    |  16  | Current address of the stack (detailed later)
 Memory Address  | ADR   |  16  | Address saved for use during certain instructions
 Instruction     | INS   |   8  | Instruction currently being executed
 
-The address bus is controlled by either `ADR` or `PC`.
-As the CPU is reading an instruction from RAM, the value of the `PC` will be used, for some instructions though, such as `JUMP` it is the value used in `ADR` that is used.
+The address bus is controlled by either `PC`, `SP` or `ADR`.
+As the CPU is reading an instruction from RAM, the value of the `PC` will be used, for some instructions though, such as `JUMP` or `STACK`, it is value of `ADR` or `SP` respectively that is used.
 
 ## General Purpose Registers
 
@@ -125,8 +125,8 @@ FFFF | Name | Count | Description
 -----|------|-------|------------
 0000 | ADD  |   1   | Addition of register X and register Y
 0001 | SUB  |   1   | Subtraction of register Y from register X (X-Y)
-0010 | ADDC |   1   | Addition of register X and register Y, using the carry bit from F
-0011 | SUBC |   1   | Subtraction of register Y from register X (X-Y), using the carry bit from F
+0010 | ADDC |   1   | Addition of register X and register Y, using the carry bit from F (X+Y+C)
+0011 | SUBC |   1   | Subtraction of register Y from register X (X-Y), using the carry bit from F (X-Y-C)
 0100 |  OR  |   1   | Bitwise OR
 0101 | XOR  |   1   | Bitwise XOR
 0110 | AND  |   1   | Bitwise AND
@@ -174,7 +174,7 @@ In fact, by design, POPing the final value from the stack will result in an over
 In terms of pseudo-code a PUSH followed by a POP can view as the following microcode, where SP is a pointer to the memory address:
 
 ```CPP
-// PUSH 
+// PUSH
 SP -= 1
 *SP = B
 SP -= 1
@@ -214,7 +214,7 @@ FFF | Name | Description
 
 The ADR register is a 16-bit register, it's value can be set/read to the general purpose registers.
 The registers A and B are paired, as are the registers C and D.
-Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser; the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
+Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser.
 
 These ADR manipulation operations are of pattern `0000 10DR`.
 The D bit indicates the direction; 0 for write-to and 1 for read-from the ADR register.
