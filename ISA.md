@@ -118,18 +118,19 @@ The registers X and Y are used as inputs to the ALU (only X for unary operations
 
 ALU operations will also update the F register as noted.
 All will set the ZERO flag if the output (register S) is `0000 0000`.
-All will set the Parity flag if the number of high bits are even.
+All will set the PARITY flag if the number of high bits are even in the S register.
+The ADD, SUB, ADDC, and SUBC operations will set the carry bit in F to carry out value from adders.
 
 FFFF | Name | Count | Description
 -----|------|-------|------------
 0000 | ADD  |   1   | Addition of register X and register Y
 0001 | SUB  |   1   | Subtraction of register Y from register X (X-Y)
-0010 | NOT  |   1   | Bitwise NOT (unary operation)
-0011 |      |   1   | Reserved
+0010 | ADDC |   1   | Addition of register X and register Y, using the carry bit from F
+0011 | SUBC |   1   | Subtraction of register Y from register X (X-Y), using the carry bit from F
 0100 |  OR  |   1   | Bitwise OR
 0101 | XOR  |   1   | Bitwise XOR
 0110 | AND  |   1   | Bitwise AND
-0111 |      |   1   | Reserved
+0111 | NOT  |   1   | Bitwise NOT (unary operation)
 1DTT |      |   8   | Shift or Rotate, see section below (unary operation)
 
 ### Shift and Rotate
