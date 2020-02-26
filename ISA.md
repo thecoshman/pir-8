@@ -157,7 +157,6 @@ An example of a Arithmetic shift right; `AXXX XXXB` would become `AAXX XXXX`, wi
 When dealing with the stack, a pair of registers will be moved to or from 'the stack' and the SP updated to reflect the changed address.
 The registers A and B are paired, as are the registers C and D.
 Effectively, the stack works on 16-bit values, but due to the 8-bit data bus it requires two transfers, though this is handled via the hardware/microcode.
-Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser; the more significant byte will be stored at the lower address in the stack, the pair of registers are big-endian.
 
 The Stack manipulation operations are of pattern `1111 10DR`.
 The D bit indicates the direction; 0 for PUSH and 1 for POP.
@@ -214,7 +213,7 @@ FFF | Name | Description
 
 The ADR register is a 16-bit register, it's value can be set/read to the general purpose registers.
 The registers A and B are paired, as are the registers C and D.
-Although still two distinct bytes, the B and D registers should be considered the more significant byte whilst A and C registers the lesser.
+Although still two distinct bytes, the A and C registers should be considered the more significant byte whilst B and D registers the lesser.
 
 These ADR manipulation operations are of pattern `0000 10DR`.
 The D bit indicates the direction; 0 for write-to and 1 for read-from the ADR register.
