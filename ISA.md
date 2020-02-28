@@ -18,15 +18,14 @@ Stack Pointer   | SP    |  16  | Current address of the stack (detailed later)
 Memory Address  | ADR   |  16  | Address saved for use during certain instructions
 Instruction     | INS   |   8  | Instruction currently being executed
 
-The address bus is controlled by either `PC`, `SP` or `ADR`.
-As the CPU is reading an instruction from RAM, the value of the `PC` will be used, for some instructions though, such as `JUMP` or `STACK`, it is value of `ADR` or `SP` respectively that is used.
+The address bus is controlled by either PC, SP or ADR.
+As the CPU is reading an instruction from system memory, the value of the PC will be used, for some instructions though, such as JUMP or STACK, it is value of ADR or SP (respectively) that is used.
 
 ## General Purpose Registers
 
-There are eight 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like 'MOVE' and 'LOAD' can use these addresses.
+There are eight 8-bit General Purpose registers, each has an internal address for use within the CPU, instructions like MOVE and LOAD can use these addresses.
 
 The first five registers have some special functionality, as described, the last three have no special functionality.
-
 The last four registers can also be used with the stack.
 
 Address | Letter | Description
@@ -71,40 +70,41 @@ as the instruction at `0xFFFF` is loaded, the PC would be incremented to `0x1000
 
 The 'Bit Mask' shows a pattern which denotes an instruction or group of instructions, the letters denoting where any value can be used and still be considered part of the same instruction.
 The 'name' is for either a group or single instruction.
-'Count' is how many of the 256 possible instructions are used by that bit pattern; HALT for example is exactly one instruction, whilst MOVE is effectively 64 possible combinations [this was added to help me keep track of how many operations I've defined, it should add up to 256].
+'Count' is how many of the 256 possible instructions are used by that bit pattern;
+HALT for example is exactly one instruction, whilst MOVE is effectively 64 possible combinations [this was added to help me keep track of how many operations I've defined, it should add up to 256].
 
 Bit Mask  | Name | Count | Description
 ----------|------|-------|------------
 000X XXXX | LOAD |    32 | Load, see section below
 0010 0XXX | JUMP |     8 | Jump, see section below
-0010 1AAA | SAVE |     8 | Store value in register `AAA` in address indicated by `ADR`
+0010 1RRR | SAVE |     8 | Store value in register `RRR` in memory addressed by `ADR`
 0011 XXXX | ALU  |    16 | ALU based operations, see section below
-01AA ABBB | MOVE |    64 | Move a value from register `AAA` to register `BBB`
+01QQ QRRR | MOVE |    64 | Move a value from register `QQQ` to register `RRR`
 10XX XXXX |      |    64 | Reserved
 1100 XXXX |      |    16 | Reserved
 1101 0XXX |      |     8 | Reserved
 1101 10XX | MADR |     4 | Move a value to/from the ADR register, see section below
 1101 11XX |      |     4 | Reserved
 1110 XXXX | PORT |    16 | Perform I/O, see section below
-1111 0AAA | COMP |     8 | Compare register S with register `AAA`, see section below
+1111 0RRR | COMP |     8 | Compare register S with register `RRR`, see section below
 1111 10XX | STCK |     4 | Stack manipulation, see section below
 1111 110X |      |     2 | Reserved
-1111 1110 | CLRF |     1 | Clear the 'F' register, by setting it to `0000 0000`
+1111 1110 | CLRF |     1 | Clear the F register, by setting it to `0000 0000`
 1111 1111 | HALT |     1 | Stop the CPU from doing any more execution
 
 ## LOAD
 
 There are various types of load instruction, all under the same `000X XXXX` pattern.
-They may further increment that PC, as described in their relevant sub-sections.
-Some of the potential 'LOAD' instruction patterns are actually reserved instruction codes.
+They may further increment the PC, as described in their relevant sub-sections.
+Some of the potential instruction patterns are simply reserved.
 
 The following table is a break down of possible LOAD instructions.
-If you consider load instruction pattern as `000M XXXX`, the M bit is 0 for single byte loads and 1 for multi-byte loads.
+If you consider load instruction pattern as `000M XXXX`, the `M` bit is `0` for single byte loads and `1` for multi-byte loads.
 
 Bit Mask | Load Type      | Description
 ---------|----------------|------------
-  0 0AAA | Byte immediate | Load the the next byte into register `AAA`
-  0 1AAA | From memory    | Load the byte address by `ADR` into register `AAA`
+  0 0RRR | Byte immediate | Load the the next byte into register `RRR`
+  0 1RRR | From memory    | Load the byte address by `ADR` into register `RRR`
   1 00XX | Wide immediate | Load the the next two bytes into a register pair
   1 01XX |                | Reserved
   1 1XXX |                | Reserved
@@ -112,7 +112,8 @@ Bit Mask | Load Type      | Description
 ### Wide Immediate
 
 When performing a wide immediate load, two bytes are read from memory into a pair of registers, as indicated by the two bits `RR`.
-The first byte read (after the actual LOAD instruction itself) is loaded as the high byte, the second is the low byte; registers A, C and X are considered the 'high byte' for this purpose;
+The first byte read (after the actual LOAD instruction itself) is loaded as the high byte, the second is the low byte;
+registers A, C and X are considered the 'high byte' for this purpose;
 if loading into ADR, the high/low bytes are loaded as the high/low byte of the address for ADR.
 
 RR | Registers
@@ -126,8 +127,7 @@ The PC is incremented twice more.
 
 ### Byte Immediate
 
-When performing a byte immediate load, the next byte (after this instruction) is read from memory into a register, as indicated by the bits `AAA`.
-The register line up with the previously defined table for one of FSXYABCD.
+When performing a byte immediate load, the next byte (after this instruction) is read from memory into a register, as indicated by the bits `RRR`.
 
 The PC is incremented once more.
 
@@ -139,15 +139,25 @@ The PC is not incremented any further.
 
 ## PORT - I/O
 
-The PORT instruction in the form `1110 DAAA` will perform I/O on the port specified in register A.
+The PORT instruction in the form `1110 DRRR` will perform I/O on the port specified in register A.
 
-The `D` bit specifies the direction; `1` for reading in from the port (`PORT IN`) and `0` for writing out to the port (`PORT OUT`).
-The `AAA` bits specify the register to write to (D=1) or read from (D=0).
+The `D` bit specifies the direction;
+`1` for reading in from the port (PORT IN) and `0` for writing out to the port (PORT OUT).
+The `RRR` bits specify the register to write to (IN from the selected device) or read from (OUT to the selected device).
+
+It is possible to read a value form a selected device to the A register, via `1110 1100`, which then changes the selected device.
+This will be stable though, and would require a further such operation in order to for the device selection to change once more.
+The value is latched on the clock edge.
+
+**NB:** It is currently planned the data is be latched on the rising edge.
+The clock signal will also be exposed out for I/O device, though it may only be done so when the CPU is expecting to read/write.
+The control line to signify to I/O devices that they should read/write would also be exposed, but under what timings is not yet determined.
 
 ## COMP - Compare
 
-The compare instruction will compare the S register with a selected register.
-It will set the Zero and Parity flag based on the value of the S register; the Zero flag if all the bits are zero, Parity if the number of set bits is even.
+The compare instruction will compare the S register with a register selected by bits `RRR`.
+It will set the Zero and Parity flag based on the value of the S register;
+the Zero flag if all the bits are zero, Parity if the number of set bits is even.
 Compare will set the Equal flag if the two registers have the same bit pattern.
 The Greater than flag is set if S is greater than the second register.
 Note that when doing a compare signed/unsigned is not taken into account, the two registers are treated as if they contain two unsigned values.
@@ -163,7 +173,7 @@ The registers X and Y are used as inputs to the ALU (only X for unary operations
 ALU operations will also update the F register as noted.
 All will set the ZERO flag if the output (register S) is `0000 0000`.
 All will set the PARITY flag if the number of high bits are even in the S register.
-The ADD, SUB, ADDC, and SUBC operations will set the carry bit in F to carry out value from adders.
+The ADD, SUB, ADDC, and SUBC operations will set the carry bit in F to carry out value from the adders.
 
 FFFF | Name | Count | Description
 -----|------|-------|------------
@@ -179,8 +189,8 @@ FFFF | Name | Count | Description
 
 ### Shift and Rotate
 
-All shifts can be performed left or right, as designated by the D bit of the instruction.
-If D is a `1`, the shift is to the left, all bits will move to a higher value, if D is `0`, it's a right shift, moving bits to lower values.
+All shifts can be performed left or right, as designated by the `D` bit of the instruction.
+If `D` is a `1`, the shift is to the left, all bits will move to a higher value, if `D` is `0`, it's a right shift, moving bits to lower values.
 There are then four types of shift that can be performed designated by the final two bits of the ALU instruction.
 The name should be appended with an L or R for the direction of the shift, left or right respectively.
 For all shift operations, the bit shifted out is set into the Carry flag.
@@ -192,21 +202,24 @@ TT | Name | Description
 10 | RTC  | Rotate with carry - the Carry flag is inserted (Carry flag value before it is updated is used)
 11 | RTW  | Rotate without carry - the bit shifted out is inserted
 
-An example of a Arithmetic shift right; `AXXX XXXB` would become `AAXX XXXX`, with `B` copied to the Carry bit.
+An example of a Arithmetic shift right;
+`AXXX XXXB` would become `AAXX XXXX`, with `B` copied to the Carry bit.
 
 **NB:** An 'Arithmetic shift left' is the same as performing a 'Logical shift left', they _can_ be used interchangeably, but 'Arithmetic shift left' should be avoided.
 
-## Stack Manipulation
+## STCK - Stack Manipulation
 
 When dealing with the stack, a pair of registers will be moved to or from 'the stack' and the SP updated to reflect the changed address.
 The registers A and B are paired, as are the registers C and D.
 Effectively, the stack works on 16-bit values, but due to the 8-bit data bus it requires two transfers, though this is handled via the hardware/microcode.
 
 The Stack manipulation operations are of pattern `1111 10DR`.
-The D bit indicates the direction; 0 for PUSH and 1 for POP.
-The R bit indicates the register pair; 0 for A & B and 1 for C & D.
+The `D` bit indicates the direction;
+`0` for PUSH and `1` for POP.
+The `R` bit indicates the register pair;
+`0` for A & B and `1` for C & D.
 
-When PUSHing B/D will go to the address one less than the current SP, whilst A/C will go to address two less than the SP.
+When PUSHing, B/D will go to the address one less than the current SP, whilst A/C will go to address two less than the SP.
 After PUSHing, the SP will have been decremented by two, with the SP containing the address of A/C (now in memory).
 
 When POPing, the same respective pairs of memory locations will be read to the same pair of registers, and the SP increased by two.
@@ -232,11 +245,12 @@ SP += 1
 
 **NB:** I Think I might update this to allow pushing/popping the PC, this would make it very easy (hardware wise) to handle calling and returning functions
 
-## Jump
+## JUMP
 
 This Instruction takes a three bit operand indicating under what condition the jump should be performed.
 If the condition is met, the value of ADR is loaded into the PC.
-If the condition is not met, no further special action is taken; the PC would have already been incremented as part of loading the instruction.
+If the condition is not met, no further special action is taken;
+the PC would have already been incremented as part of loading the instruction.
 
 **NB:** The value of ADR must have been set with the desired target location prior to the JUMP instruction being performed.
 
@@ -260,5 +274,7 @@ The registers A and B are paired, as are the registers C and D.
 Although still two distinct bytes, the A and C registers should be considered the more significant byte whilst B and D registers the lesser.
 
 These ADR manipulation operations are of pattern `0000 10DR`.
-The D bit indicates the direction; 0 for write-to and 1 for read-from the ADR register.
-The R bit indicates the register pair; 0 for A & B and 1 for C & D.
+The `D` bit indicates the direction;
+`0` for write-to and `1` for read-from the ADR register.
+The `R` bit indicates the register pair;
+`0` for A & B and `1` for C & D.
